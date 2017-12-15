@@ -1,4 +1,4 @@
-import { ROWS, COLS, INITIAL_DELAY } from './config';
+import { ROWS, COLS } from './config';
 
 function SnakeGameLogic() {
   // 각 마디의 좌표를 저장하는 배열
@@ -14,24 +14,6 @@ function SnakeGameLogic() {
   // 뱀의 방향
   this.direction = 'right';
 
-  //과일을 랜덤으로 생성
-  this.random = () => {
-    let x = Math.floor(Math.random() * COLS);
-    let y = Math.floor(Math.random() * ROWS);
-    let same = this.joints.some(item => {
-      if (item.x === this.x && item.y === this.y) {
-        return true;
-      } else {
-        this.fruit.x = x;
-        this.fruit.y = y;
-        return false;
-      }
-    })
-
-    if (same === true) {
-      this.random();
-    }
-  }
 
 
 
@@ -62,67 +44,58 @@ SnakeGameLogic.prototype.nextState = function () {
   // 게임이 아직 끝나지 않았으면 `true`를 반환
   // 게임이 끝났으면 `false`를 반환
   // console.log(`nextState`);
+  let newHead;
+
   if (this.direction === 'right') {
-    this.joints.unshift({ x: this.joints[0].x + 1, y: this.joints[0].y });
-    if (!(this.joints[0].x === this.fruit.x && this.joints[0].y === this.fruit.y)) {
-      this.joints.pop(this.joints.length - 1);
-    } else {
-      this.random();
+    newHead = {
+      x: this.joints[0].x + 1,
+      y: this.joints[0].y
     }
   }
   if (this.direction === 'left') {
-    this.joints.unshift({ x: this.joints[0].x - 1, y: this.joints[0].y });
-    if (!(this.joints[0].x === this.fruit.x && this.joints[0].y === this.fruit.y)) {
-      this.joints.pop(this.joints.length - 1);
-    } else {
-      this.random();
+    newHead = {
+      x: this.joints[0].x - 1,
+      y: this.joints[0].y
     }
   }
   if (this.direction === 'up') {
-    this.joints.unshift({ x: this.joints[0].x, y: this.joints[0].y - 1 });
-    if (!(this.joints[0].x === this.fruit.x && this.joints[0].y === this.fruit.y)) {
-      this.joints.pop(this.joints.length - 1);
-    } else {
-      this.random();
+    newHead = {
+      x: this.joints[0].x,
+      y: this.joints[0].y -1
     }
   }
   if (this.direction === 'down') {
-    this.joints.unshift({ x: this.joints[0].x, y: this.joints[0].y + 1});
-    if (!(this.joints[0].x === this.fruit.x && this.joints[0].y === this.fruit.y)) {
-      this.joints.pop(this.joints.length - 1);
-    } else {
-      this.random();
+    newHead = {
+      x: this.joints[0].x,
+      y: this.joints[0].y + 1
     }
   }
-
-
-  // for (let i = 1; i < this.joints.length; i++) {
-  //   if (this.joints[0].x === this.joints[i].x && this.joints[0].y === this.joints[i].y) {
-  //     console.log('끝');
-  //     return false;
-  //   }
-  // }
-
-  const collison = this.joints.slice(1).some(item => {
-    if (item.x === this.joints[0].x && item.y === this.joints[0].y) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-
-  if (collison === true) {
+  // 벽과 자기 자신과 부딪히면
+  if (
+    newHead.x < 0 ||
+    newHead.x >= COLS ||
+    newHead.y < 0 ||
+    newHead.y >= ROWS ||
+    this.joints.some(j => j.x === newHead.x && j.y === newHead.y)
+  ) {
     return false;
   }
+  // 먹이를 먹으면
+  if (newHead.x === this.fruit.x && newHead.y === this.fruit.y) {
+    do {
+      this.fruit.x = Math.floor(Math.random() * COLS);
+      this.fruit.y = Math.floor(Math.random() * ROWS);
+    } while (
+      this.joints.some(j => j.x === this.fruit.x && j.y === this.fruit.y) ||
+      (newHead.x === this.fruit.x && this.newHea.y === this.fruit.y)
+    )
+  } else {
+    this.joints.pop();
+  }
 
-  if (this.joints[0].x >= COLS || this.joints[0].x < 0) {
-    return false;
-  }
-  if (this.joints[0].y >= ROWS || this.joints[0].y < 0) {
-    return false;
-  }
+  this.joints.unshift(newHead);
+
   return true;
 }
-
 
 export default SnakeGameLogic;

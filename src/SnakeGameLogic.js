@@ -95,7 +95,6 @@ SnakeGameLogic.prototype.nextState = function () {
     }
   }
 
-
   // for (let i = 1; i < this.joints.length; i++) {
   //   if (this.joints[0].x === this.joints[i].x && this.joints[0].y === this.joints[i].y) {
   //     console.log('끝');
